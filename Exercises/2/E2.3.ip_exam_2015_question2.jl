@@ -129,10 +129,10 @@ storage_cost = [2 3 5 1 4;
 @variable(model, z[1:2,1:6] >= 0, Int)
 
 # binary decision variable for how many times the production switches from one product to another
-@variable(model, a[1:2] >=0, Int)
+@variable(model, a[1:2,1:5], Bin)
 
 # minimize the total cost of producing the products
-@objective(model, Min, sum(init_cost[i]*x[i,j] for i in 1:2 for j in 1:5) + sum((z[i,j] + y[i,j] - demand[i,j])*storage_cost[i,j] for i in 1:2 for j in 1:5))
+@objective(model, Min, sum(init_cost[i]*a[i,j] for i in 1:2 for j in 1:5) + sum((z[i,j] + y[i,j] - demand[i,j])*storage_cost[i,j] for i in 1:2 for j in 1:5))
 
 # the amount of product produced must not exceed the production limit and only if machine is turned on
 for i in 1:2
@@ -166,6 +166,10 @@ for j in 1:5
 end
 
 # constraint if x is one and the previous x is not one for both products then a must be one
+@constraint(model, [i = 1:2, j = 2:5], a[i,j] >= x[i,j] - x[i,j-1])
+
+# copy first day machine activation
+@constraint(model, [i = 1:2], a[i,1] == x[i,1])
 
 
 
@@ -185,12 +189,12 @@ println("Initial cost paid: ")
 #     print(JuMP.value(a[i]), " ")
 #     println()
 # end
-# for i=1:2
-#     for j=1:5
-#         print(JuMP.value(a[i,j]), " ")
-#     end
-#     println()
-# end
+for i=1:2
+    for j=1:5
+        print(JuMP.value(a[i,j]), " ")
+    end
+    println()
+end
 println("Produced quantity of units: ")
 for i=1:2
     for j=1:5
