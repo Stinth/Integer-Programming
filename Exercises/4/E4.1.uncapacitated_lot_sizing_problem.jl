@@ -59,5 +59,39 @@ for i in 1:n
         end
     end
 end
+c = zeros(n)
+for i in 1:n
+    c[i] = p[i] + sum(h[i:n])
+end
+
+H = zeros(n+1)
+# should be H[0], but can't do that in julia
+H[1] = 0
+H[2] = min(H[1] + f[1] + c[1]*sum_demand[1,1])
+H[3] = min(H[2] + f[2] + c[2]*sum_demand[2,2], H[1] + f[1] + c[1]*sum_demand[1,2])
+H[4] = min(H[3] + f[3] + c[3]*sum_demand[3,3], H[2] + f[2] + c[2]*sum_demand[2,3], H[1] + f[1] + c[1]*sum_demand[1,3])
+H[5] = min(H[4] + f[4] + c[4]*sum_demand[4,4], H[3] + f[3] + c[3]*sum_demand[3,4], H[2] + f[2] + c[2]*sum_demand[2,4], H[1] + f[1] + c[1]*sum_demand[1,4])
+# then go back and check which one is the minimum
 
 
+# lecture method
+v = zeros(n, n)
+for i in 1:n
+    for j in 1:n
+        if i == j
+            v[i,j] = 0
+        elseif i < j
+            for k in i+1:j
+                v[i,j] += d[k] * (k-i)
+            end
+        end
+    end
+end
+H = zeros(n+1)
+# should be H[0], but can't do that in julia
+H[1] = 0
+H[2] = min(H[1] + f[1] + h[1]*v[1,1] + p[1]*sum_demand[1,1])
+H[3] = min(H[2] + f[2] + h[2]*v[2,2] + p[2]*sum_demand[2,2], H[1] + f[1] + h[1]*v[1,2] + p[1]*sum_demand[1,2])
+H[4] = min(H[3] + f[3] + h[3]*v[3,3] + p[3]*sum_demand[3,3], H[2] + f[2] + h[2]*v[2,3] + p[2]*sum_demand[2,3], H[1] + f[1] + h[1]*v[1,3] + p[1]*sum_demand[1,3])
+H[5] = min(H[4] + f[4] + h[4]*v[4,4] + p[4]*sum_demand[4,4], H[3] + f[3] + h[3]*v[3,4] + p[3]*sum_demand[3,4], H[2] + f[2] + h[2]*v[2,4] + p[2]*sum_demand[2,4], H[1] + f[1] + h[1]*v[1,4] + p[1]*sum_demand[1,4])
+# then go back and check which one is the minimum
