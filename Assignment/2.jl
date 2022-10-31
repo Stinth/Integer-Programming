@@ -4,6 +4,9 @@ using Plots
 using StatsBase
 using Graphs
 using GraphPlot
+using SplitApplyCombine
+using Cairo
+using Compose
 include("visualize_problem.jl")
 # Produciton planning
 
@@ -73,14 +76,6 @@ loc_y = Vector{Float64}([0,4,3, 4,0,3, 5,6,2, 2,5,6, 2.5,2.5])
 visualize_problem(d, n, m, loc_x, loc_y, node_labels, "Assignment/Question9_graph.png")
 
 println("Question 10:")
-
-
-function find_length_for_order(order, max_length)
-    
-    
-end
-
-
 function find_max_length(production_order, max_job = zeros(n), max_machine = zeros(m))
     if production_order == []
         return max_job, max_machine
@@ -93,8 +88,8 @@ function find_max_length(production_order, max_job = zeros(n), max_machine = zer
         max_job[job] = start_time + p[job, procedure]
         max_machine[machine] = start_time + p[job, procedure]
     end
-
-
+    println("Sorted current: ", current)
+    println(max_job, max_machine)
     find_max_length(production_order, max_job, max_machine)
 end
 
@@ -113,6 +108,7 @@ production_order = [[(1,1,1), (2,1,2), (3,1,3)],
 #                     [(4,1),(1,2),(4,2)],
 #                     [(2,2),(3,2),(2,3)],
 #                     [(3,3),(4,3),(1,3)]]
+println("Question 11:")
 println("The maximum length of the production order is: ", find_max_length(copy(production_order)))
 
 
@@ -181,3 +177,38 @@ gplot(g, loc_x, loc_y, nodelabel=node_labels, edgestrokec=colors)
 
 # this one is honestly more clear
 gplot(g, nodelabel=node_labels, edgestrokec=colors)
+# draw(PNG("Assignment/Q11.png", 16cm, 16cm), gplot(g, nodelabel=node_labels, edgestrokec=colors))
+
+
+println("Question 12:")
+# un-ordered schedule for each machine
+machine_schedule = [[(1,1,1), (2,2,1), (3,3,1), (4,1,1)],
+                    [(1,2,2), (2,1,2), (3,2,2), (4,3,2)],
+                    [(1,3,3), (2,3,3), (3,1,3), (4,2,3)]]
+
+function greedy_heuristic(machine_schedule)
+    for schedule in machine_schedule
+        schedule = sort!(schedule, by=schedule->schedule[2])
+    end
+    return machine_schedule
+end
+# show input
+println("Input:")
+for schedule in machine_schedule
+    println(schedule)
+end
+# show output
+println("Output:")
+greedy_schedule = greedy_heuristic(copy(machine_schedule))
+for schedule in greedy_schedule
+    println(schedule)
+end
+println("We simply sort the schedule for each machine by the procedure number.")
+# the max length of this schedule is
+greedy_schedule_T = invert(greedy_schedule)
+println("The maximum length of this schedule is: ", find_max_length(greedy_schedule_T))
+
+[[3,7,3],
+[5,7,5],
+[10,4,9],
+[4,6,2]]
