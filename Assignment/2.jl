@@ -5,8 +5,9 @@ using StatsBase
 using Graphs
 using GraphPlot
 using SplitApplyCombine
-using Cairo
 using Compose
+using Cairo
+
 include("visualize_problem.jl")
 # Produciton planning
 
@@ -84,7 +85,7 @@ function find_max_length(production_order, max_job = zeros(n), max_machine = zer
     # we sort it to ensure that earliest procedure of an order is produced first
     current = sort(current, by=current->current[2])
     for (job, procedure, machine) in current
-        start_time = min(max_job[job], max_machine[machine])
+        start_time = max(max_job[job], max_machine[machine])
         max_job[job] = start_time + p[job, procedure]
         max_machine[machine] = start_time + p[job, procedure]
     end

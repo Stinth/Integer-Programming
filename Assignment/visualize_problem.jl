@@ -61,7 +61,7 @@ function visualize_problem(d, n, m, loc_x, loc_y, node_labels, filename)
             xlims=(-3,12), ylims=(-1,7), grid=false, size=(800,800), axis=false, ticks=nothing)
 
     for (x,y,label) in zip(loc_x, loc_y, node_labels)
-        annotate!(x, y, text(label, :black, 15))
+        annotate!(x, y, Compose.text(label, :black, 15))
     end
 
     plot!()
